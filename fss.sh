@@ -89,7 +89,7 @@ setup_ssh_key_auth() {
 }
 
 # Main script execution
-print_msg "blue" "-----脚本开始-----"
+print_msg "blue" "-----FastSetupScript By Bryant-Xue-----"
 
 # Determine the distribution
 distro=$(get_distro)
@@ -159,3 +159,4 @@ prompt_disable_password_login
 
 print_msg "blue" "-----用户 $username 创建成功并已配置 sudo 权限和公钥登录-----"
 print_msg "green" "-----脚本执行完成，感谢您的使用！-----"
+print_msg "green" "-----脚本在 https://github.com/Bryant-Xue/FastSetupScript开源，欢迎您提交Issue/PR！ "
