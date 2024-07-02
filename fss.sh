@@ -6,10 +6,33 @@ prompt() {
     echo "$input"
 }
 
-# Function to create new user
+# Function to determine the Linux distribution
+get_distro() {
+    if [ -f /etc/os-release ]; then
+        . /etc/os-release
+        echo $ID
+    else
+        echo "unknown"
+    fi
+}
+
+# Function to perform system update
+perform_system_update() {
+    distro=$1
+    if [ "$distro" == "ubuntu" ] || [ "$distro" == "debian" ]; then
+        sudo apt update && sudo apt upgrade -y
+    elif [ "$distro" == "centos" ] || [ "$distro" == "fedora" ]; then
+        sudo yum update -y
+    else
+        echo "Unsupported distribution for automatic updates"
+    fi
+}
+
+# Function to create new user using useradd
 create_user() {
     username=$(prompt "请输入要创建的用户名")
-    sudo adduser "$username"
+    sudo useradd -m -s /bin/bash "$username"
+    sudo passwd "$username"
 }
 
 # Function to add user to sudo group
@@ -43,18 +66,34 @@ setup_ssh_key_auth() {
 }
 
 # Main script execution
-echo "用户创建和配置脚本"
+echo "-----脚本开始-----"
+
+# Determine the distribution
+distro=$(get_distro)
+echo "检测到的系统发行版: $distro"
+
+# Ask user if they want to perform a system update
+update_choice=$(prompt "是否执行系统更新？(Y/n)")
+if [ "$update_choice" == "Y" ] || [ "$update_choice" == "y" ] || [ -z "$update_choice" ]; then
+    perform_system_update "$distro"
+fi
+
+echo "-----用户创建和配置脚本-----"
 
 # Step 1: Create a new user
+echo "-----创建新用户阶段-----"
 create_user
 
 # Step 2: Add the new user to sudo group
+echo "-----添加用户到sudo组阶段-----"
 add_to_sudo_group "$username"
 
 # Step 3: Configure sudo to not require a password
+echo "-----配置sudo免密码阶段-----"
 configure_sudo_nopass "$username"
 
 # Step 4: Setup SSH public key authentication
+echo "-----设置SSH公钥认证阶段-----"
 setup_ssh_key_auth "$username"
 
-echo "用户 $username 创建成功并已配置 sudo 权限和公钥登录"
+echo "-----用户 $username 创建成功并已配置 sudo 权限和公钥登录-----"
