@@ -12,6 +12,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/Bryant-Xue/FastSetupScri
 5. 关闭密码登录，启用公钥登录（此项可以撤销）
 
 ### 请注意检查密码登录关闭后公钥登录是否正确打开，否则可能失联！
+### 脚本当前还未广泛测试，使用时请小心！
 
 ## 待办清单
 - [x] 新建用户
@@ -20,3 +21,5 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/Bryant-Xue/FastSetupScri
 - [ ] 软件源速度优化
 - [ ] 支持网络拉取常用参数
 - [ ] 支持单行参数传入
+- [ ] 聚合常用测试脚本
+- [ ] 支持只运行部分功能

@@ -170,4 +170,4 @@ prompt_disable_password_login
 
 print_msg "blue" "-----用户 $username 创建成功并已配置 sudo 权限和公钥登录-----"
 print_msg "green" "-----脚本执行完成，感谢您的使用！-----"
-print_msg "green" "-----脚本在 https://github.com/Bryant-Xue/FastSetupScript开源，欢迎您提交Issue/PR！ "
+print_msg "green" "-----脚本在 https://github.com/Bryant-Xue/FastSetupScript 开源，欢迎您提交Issue/PR！ "
