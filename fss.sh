@@ -119,4 +119,43 @@ configure_sudo_nopass "$username"
 print_msg "blue" "-----设置SSH公钥认证阶段-----"
 setup_ssh_key_auth "$username"
 
+print_msg "blue" "-----SSH安全调优阶段-----"
+# Function to disable root SSH login and prompt user for confirmation
+disable_root_ssh_login() {
+    print_msg "yellow" "正在禁用 root SSH 登录..."
+    sudo sed -i 's/^PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+    sudo systemctl restart ssh
+
+    # Prompt user to confirm
+    choice=$(prompt "是否接受禁用 root SSH 登录？(Y/n)")
+    if [ "$choice" != "Y" ] && [ "$choice" != "y" ]; then
+        # Revert changes if user does not accept
+        print_msg "yellow" "正在撤销禁用 root SSH 登录..."
+        sudo sed -i 's/^PermitRootLogin no/PermitRootLogin yes/' /etc/ssh/sshd_config
+        sudo systemctl restart ssh
+        print_msg "green" "已撤销禁用 root SSH 登录"
+    fi
+}
+
+# Function to prompt user to disable password login
+prompt_disable_password_login() {
+    choice=$(prompt "是否要关闭密码登录？(Y/n)")
+    if [ "$choice" == "Y" ] || [ "$choice" == "y" ]; then
+        sudo sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+        sudo systemctl restart ssh
+        print_msg "green" "已关闭密码登录"
+    else
+        print_msg "green" "未修改密码登录设置"
+    fi
+}
+
+# Main script execution
+
+print_msg "blue" "-----禁用 root SSH 登录-----"
+disable_root_ssh_login
+
+print_msg "blue" "-----关闭密码登录设置-----"
+prompt_disable_password_login
+
 print_msg "blue" "-----用户 $username 创建成功并已配置 sudo 权限和公钥登录-----"
+print_msg "green" "-----脚本执行完成，感谢您的使用！-----"
