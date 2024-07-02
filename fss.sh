@@ -85,8 +85,19 @@ setup_ssh_key_auth() {
     echo "$public_key" | sudo tee -a "$auth_keys_file"
 
     sudo chown -R "$username:$username" "$ssh_dir"
+
+    # Check if PubkeyAuthentication is enabled in sshd_config
+    if ! sudo grep -qE '^#*\s*PubkeyAuthentication\s+yes' /etc/ssh/sshd_config; then
+        # Enable PubkeyAuthentication if not already enabled
+        print_msg "检测到系统没有开启公钥认证方式，正在开启..."
+        sudo sed -i 's/^#*\s*\(PubkeyAuthentication\s\+\).*$/\1yes/' /etc/ssh/sshd_config
+        sudo systemctl restart ssh
+        print_msg "green" "已开启 SSH 公钥认证"
+    fi
+
     print_msg "green" "用户 $username 的 SSH 公钥认证已配置"
 }
+
 
 # Main script execution
 print_msg "blue" "-----FastSetupScript By Bryant-Xue-----"
