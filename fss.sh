@@ -42,15 +42,19 @@ perform_system_update() {
         print_msg "red" "不支持自动更新的发行版"
     fi
 }
-
-# Function to create new user using useradd
 create_user() {
-    username=$(prompt "请输入要创建的用户名")
-    sudo useradd -m -s /bin/bash "$username"
-    sudo passwd "$username"
-    print_msg "green" "用户 $username 已创建"
+    while true; do
+        username=$(prompt "请输入要创建的用户名 (仅小写字母、数字、连字符和下划线，长度1到32个字符)")
+        if [[ "$username" =~ ^[a-z0-9_-]{1,32}$ ]]; then
+            sudo useradd -m -s /bin/bash "$username"
+            sudo passwd "$username"
+            print_msg "green" "用户 $username 已创建"
+            break
+        else
+            print_msg "red" "用户名不符合规范，请重新输入。"
+        fi
+    done
 }
-
 # Function to add user to sudo group
 add_to_sudo_group() {
     username=$1
