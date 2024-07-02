@@ -4,3 +4,8 @@
 ```bash
 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Bryant-Xue/FastSetupScript/main/fss.sh)"
 ```
+## 待办清单
+- [x] 新建用户
+- [x] 配置sudo与sudo免密
+- [x] ssh安全调优
+- [ ] 软件源速度优化
