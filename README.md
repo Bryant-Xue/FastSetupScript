@@ -10,6 +10,7 @@ bash -c "$(curl -fsSL https://raw.githubusercontent.com/Bryant-Xue/FastSetupScri
 3. 配置sudo与sudo免密
 4. 配置公钥，配置免密登录
 5. 关闭密码登录，启用公钥登录（此项可以撤销）
+6. 自定义主机名
 
 ### 请注意检查密码登录关闭后公钥登录是否正确打开，否则可能失联！
 ### 脚本当前还未广泛测试，使用时请小心！
