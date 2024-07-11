@@ -42,6 +42,8 @@ perform_system_update() {
         print_msg "red" "不支持自动更新的发行版"
     fi
 }
+
+# Function to create a new user
 create_user() {
     while true; do
         username=$(prompt "请输入要创建的用户名 (仅小写字母、数字、连字符和下划线，长度1到32个字符)")
@@ -55,6 +57,7 @@ create_user() {
         fi
     done
 }
+
 # Function to add user to sudo group
 add_to_sudo_group() {
     username=$1
@@ -98,6 +101,42 @@ setup_ssh_key_auth() {
     print_msg "green" "用户 $username 的 SSH 公钥认证已配置"
 }
 
+# Function to change the hostname
+change_hostname() {
+    new_hostname=$(prompt "请输入新的主机名")
+    sudo hostnamectl set-hostname "$new_hostname"
+    echo "127.0.0.1 $new_hostname" | sudo tee -a /etc/hosts
+    print_msg "green" "主机名已更改为 $new_hostname"
+}
+
+# Function to disable root SSH login and prompt user for confirmation
+disable_root_ssh_login() {
+    print_msg "yellow" "正在禁用 root SSH 登录..."
+    sudo sed -i 's/^PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+    sudo systemctl restart ssh
+
+    # Prompt user to confirm
+    choice=$(prompt "是否接受禁用 root SSH 登录？(Y/n)")
+    if [ "$choice" != "Y" ] && [ "$choice" != "y" ]; then
+        # Revert changes if user does not accept
+        print_msg "yellow" "正在撤销禁用 root SSH 登录..."
+        sudo sed -i 's/^PermitRootLogin no/PermitRootLogin yes/' /etc/ssh/sshd_config
+        sudo systemctl restart ssh
+        print_msg "green" "已撤销禁用 root SSH 登录"
+    fi
+}
+
+# Function to prompt user to disable password login
+prompt_disable_password_login() {
+    choice=$(prompt "是否要关闭密码登录？(Y/n)")
+    if [ "$choice" == "Y" ] || [ "$choice" == "y" ]; then
+        sudo sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
+        sudo systemctl restart ssh
+        print_msg "green" "已关闭密码登录"
+    else
+        print_msg "green" "未修改密码登录设置"
+    fi
+}
 
 # Main script execution
 print_msg "blue" "-----FastSetupScript By Bryant-Xue-----"
@@ -131,36 +170,6 @@ print_msg "blue" "-----设置SSH公钥认证阶段-----"
 setup_ssh_key_auth "$username"
 
 print_msg "blue" "-----SSH安全调优阶段-----"
-# Function to disable root SSH login and prompt user for confirmation
-disable_root_ssh_login() {
-    print_msg "yellow" "正在禁用 root SSH 登录..."
-    sudo sed -i 's/^PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-    sudo systemctl restart ssh
-
-    # Prompt user to confirm
-    choice=$(prompt "是否接受禁用 root SSH 登录？(Y/n)")
-    if [ "$choice" != "Y" ] && [ "$choice" != "y" ]; then
-        # Revert changes if user does not accept
-        print_msg "yellow" "正在撤销禁用 root SSH 登录..."
-        sudo sed -i 's/^PermitRootLogin no/PermitRootLogin yes/' /etc/ssh/sshd_config
-        sudo systemctl restart ssh
-        print_msg "green" "已撤销禁用 root SSH 登录"
-    fi
-}
-
-# Function to prompt user to disable password login
-prompt_disable_password_login() {
-    choice=$(prompt "是否要关闭密码登录？(Y/n)")
-    if [ "$choice" == "Y" ] || [ "$choice" == "y" ]; then
-        sudo sed -i 's/^PasswordAuthentication yes/PasswordAuthentication no/' /etc/ssh/sshd_config
-        sudo systemctl restart ssh
-        print_msg "green" "已关闭密码登录"
-    else
-        print_msg "green" "未修改密码登录设置"
-    fi
-}
-
-# Main script execution
 
 print_msg "blue" "-----禁用 root SSH 登录-----"
 disable_root_ssh_login
@@ -168,6 +177,9 @@ disable_root_ssh_login
 print_msg "blue" "-----关闭密码登录设置-----"
 prompt_disable_password_login
 
+print_msg "blue" "-----更改主机名-----"
+change_hostname
+
 print_msg "blue" "-----用户 $username 创建成功并已配置 sudo 权限和公钥登录-----"
 print_msg "green" "-----脚本执行完成，感谢您的使用！-----"
-print_msg "green" "-----脚本在 https://github.com/Bryant-Xue/FastSetupScript 开源，欢迎您提交Issue/PR！ "
+print_msg "green" "-----脚本在 https://github.com/Bryant-Xue/FastSetupScript 开源，欢迎您提交Issue/PR！"
